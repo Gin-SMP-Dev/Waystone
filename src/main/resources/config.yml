@@ -1,0 +1,26 @@
+message:
+  not-player: "§cOnly players can run this command!"
+  unknown-command: "§cUnknown command!"
+  missing-arg: "§cMissing arguments!"
+  missing-perm: "§cYou dont have permission to run this command!"
+  config-reload: "§aConfiguration has now been reloaded!"
+  many-arg: "§cToo many arguments!"
+  few-arg: "§cMissing arguments!"
+  unknown-cmd-arg: "§cUnknown command arguments!"
+  mat-not-found: "§cItem not found!"
+
+  waystone-created: "§aWaystone created!"
+  waystone-name-conflict: "§cA waystone already exist!"
+  waystone-deleted: "§aWaystone deleted!"
+  waystone-not-found: "§cCould not find a waystone with that name!"
+
+  waystone_teleported: "§aYou teleported to %waystone_name%!"
+
+  saving-error: "§cCould not save waystone file!"
+  delete-error: "§cCould not delete waystone from file!"
+  load-error: "§cCould not load waystones from file!"
+  world-load-error: "§cCould not load waystones from file because %world% dont exist!"
+
+inventory:
+  title: "Where would you like to travel?"
+  size: 54
