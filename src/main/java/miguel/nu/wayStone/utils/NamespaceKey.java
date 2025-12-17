@@ -20,5 +20,7 @@ public class NamespaceKey {
 
     public static void createNamespaceKeys(){
         namespaces.add(new NamespacedKey(Main.plugin, "WAYSTONE_NAME"));
+        namespaces.add(new NamespacedKey(Main.plugin, "IS_WAYSTONE"));
+        namespaces.add(new NamespacedKey(Main.plugin, "WAYSTONE_ENTITY"));
     }
 }

@@ -5,6 +5,9 @@ import miguel.nu.wayStone.Main;
 import miguel.nu.wayStone.Menu.MenuHolder;
 import miguel.nu.wayStone.WaystoneManager;
 import miguel.nu.wayStone.utils.NamespaceKey;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +16,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import static miguel.nu.wayStone.utils.Sound.playSound;
+
 public class GuiListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -20,6 +25,7 @@ public class GuiListener implements Listener {
         if (top.getHolder() instanceof MenuHolder holder) {
             switch (holder.getId()) {
                 case "WAYSTONE_MENU" -> {
+                    Player player = (Player) event.getWhoClicked();
                     event.setCancelled(true);
                     PersistentDataContainer data = null;
                     if(event.getCurrentItem() != null){
@@ -37,6 +43,8 @@ public class GuiListener implements Listener {
 
                         WaystoneManager.teleportToWaystone((Player) event.getWhoClicked(), waystone);
                         event.getInventory().close();
+
+                        playSound(player, Main.config.getString("sound.inventory_click"));
                     }
                 }
             }

@@ -21,6 +21,53 @@ message:
   load-error: "§cCould not load waystones from file!"
   world-load-error: "§cCould not load waystones from file because %world% dont exist!"
 
+  teleport_start: "§eTeleport will start, please §6stand still§e!"
+  teleport_countdown: "§eTeleporting in §6%countdown_left% §e… §7(Don't move)"
+  teleport_cancelled: "§cTeleport cancelled because you moved. §7You need to stand still!"
+  teleport_success: "§aTeleported!"
+
 inventory:
   title: "Where would you like to travel?"
+  click-sound: ""
   size: 54
+
+sound:
+  teleport_start: "minecraft:ui.button.click"
+  teleport_tick: "minecraft:block.note_block.hat"
+  teleport_cancelled: "minecraft:block.anvil.land"
+  teleport_success: "minecraft:entity.enderman.teleport"
+  inventory_click: "minecraft:ui.button.click"
+options:
+  hitbox:
+    offset:
+      - 0
+      - 0
+      - 0
+    size:
+      - 2
+      - 4
+  statue:
+    offset:
+      - 0
+      - 3.1
+      - 0
+    size:
+      - 2
+      - 2
+      - 2
+  pedestal:
+    offset:
+      - 0
+      - 1
+      - 0
+    size:
+      - 2
+      - 2
+      - 2
+  teleport:
+    offset:
+      - 3 # Forward/Backwards
+      - 0 # Up/Down
+      - 0 # Left/Right
+    delay: 3
+    countdown: true

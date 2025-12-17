@@ -37,6 +37,8 @@ public class WaystoneCommand implements BasicCommand {
 
         if(args[0].equals("reload")){
             Main.plugin.reloadConfig();
+            Main.config = Main.plugin.getConfig();
+            WaystoneManager.refreshWaystone();
             source.getSender().sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.config-reload"), (Player) source.getSender(), null));
             return;
         }
@@ -91,6 +93,10 @@ public class WaystoneCommand implements BasicCommand {
     public Collection<String> suggest(CommandSourceStack source, String[] args) {
         if (!source.getSender().isOp()) {
             return List.of();
+        }
+
+        if (args.length == 0) {
+            return List.of("reload", "spawn", "delete", "teleport");
         }
 
         if (args.length == 1) {

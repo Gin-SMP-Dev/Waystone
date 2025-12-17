@@ -20,6 +20,8 @@ public final class Main extends JavaPlugin {
 
         NamespaceKey.createNamespaceKeys();
         getServer().getPluginManager().registerEvents(new GuiListener(), this);
+        getServer().getPluginManager().registerEvents(new EventListener(), this);
+        getServer().getPluginManager().registerEvents(new CopperListener(), this);
 
 
         new CommandListener(this);
