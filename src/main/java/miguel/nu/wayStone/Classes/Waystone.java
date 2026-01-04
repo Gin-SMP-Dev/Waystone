@@ -197,50 +197,24 @@ public class Waystone {
 
 
     public void despawn() {
-        // Java entities
-        if (itemDisplay != null) {
-            Entity itemDisplayEntity = Bukkit.getEntity(itemDisplay);
-            if (itemDisplayEntity != null) {
-                itemDisplayEntity.remove();
-            }
-        }
+        removeEntity(itemDisplay);
+        removeEntity(hitbox);
+        removeEntity(pedestal);
 
-        if (hitbox != null) {
-            Entity hitboxEntity = Bukkit.getEntity(hitbox);
-            if (hitboxEntity != null) {
-                hitboxEntity.remove();
-            }
-        }
-
-        if (pedestal != null) {
-            Entity pedestalEntity = Bukkit.getEntity(pedestal);
-            if (pedestalEntity != null) {
-                pedestalEntity.remove();
-            }
-        }
-
-        // Bedrock entities
-        if (bedrockStatue != null) {
-            Entity bedrockStatueEntity = Bukkit.getEntity(bedrockStatue);
-            if (bedrockStatueEntity != null) {
-                bedrockStatueEntity.remove();
-            }
-        }
-
-        if (bedrockPedestal != null) {
-            Entity bedrockPedestalEntity = Bukkit.getEntity(bedrockPedestal);
-            if (bedrockPedestalEntity != null) {
-                bedrockPedestalEntity.remove();
-            }
-        }
-
-        if (bedrockHitbox != null) {
-            Entity bedrockHitboxEntity = Bukkit.getEntity(bedrockHitbox);
-            if (bedrockHitboxEntity != null) {
-                bedrockHitboxEntity.remove();
-            }
-        }
+        removeEntity(bedrockStatue);
+        removeEntity(bedrockPedestal);
+        removeEntity(bedrockHitbox);
     }
+
+    private void removeEntity(UUID uuid) {
+        if (uuid == null) return;
+
+        Entity e = Bukkit.getEntity(uuid);
+        if (e == null) return;
+
+        miguel.nu.wayStone.utils.RegionSchedulers.runOnEntity(e, e::remove);
+    }
+
 
     public void updateVisibilityForAllPlayers() {
         for (Player player : Bukkit.getOnlinePlayers()) {

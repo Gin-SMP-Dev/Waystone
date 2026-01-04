@@ -46,11 +46,13 @@ public class EventListener implements Listener {
             firstPlayer = true;
             Main.plugin.reloadConfig();
             Main.config = Main.plugin.getConfig();
-            WaystoneManager.refreshWaystone();
-            System.out.println("Loaded");
+            miguel.nu.wayStone.utils.RegionSchedulers.runGlobal(WaystoneManager::refreshWaystone);
+            Main.plugin.getLogger().info("All Waystones has been loaded.");
         }
         for(Waystone waystone : WaystoneManager.getAllWaystone()){
-            waystone.updateVisibilityForPlayer(event.getPlayer());
+            miguel.nu.wayStone.utils.RegionSchedulers.runOnEntity(event.getPlayer(), () ->
+                    waystone.updateVisibilityForPlayer(event.getPlayer())
+            );
         }
     }
 }

@@ -1,4 +1,7 @@
 name: WayStone
-version: '1.0-SNAPSHOT'
+version: '1.0'
 main: miguel.nu.wayStone.Main
 api-version: '1.21'
+folia-supported: true
+
+load: POSTWORLD

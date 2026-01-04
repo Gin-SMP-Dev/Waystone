@@ -3,6 +3,7 @@ package miguel.nu.wayStone;
 import miguel.nu.wayStone.Classes.Waystone;
 import miguel.nu.wayStone.utils.NamespaceKey;
 import miguel.nu.wayStone.utils.PlaceholderSetter;
+import miguel.nu.wayStone.utils.RegionSchedulers;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -92,7 +93,7 @@ public class WaystoneManager {
         waystoneFile.set(base + ".name", waystone.getName());
         waystoneFile.set(base + ".uuid.item-display", waystone.getItemDisplay().toString());
         waystoneFile.set(base + ".uuid.hitbox", waystone.getHitbox().toString());
-        waystoneFile.set(base + ".uuid.pedestal", waystone.getHitbox().toString());
+        waystoneFile.set(base + ".uuid.pedestal", waystone.getPedestal().toString());
         waystoneFile.set(base + ".material", waystone.getPlaceholder().name());
         waystoneFile.set(base + ".statue.world", waystone.getStatueLocation().getWorld().getName());
         waystoneFile.set(base + ".statue.x", waystone.getStatueLocation().getX());
@@ -104,7 +105,9 @@ public class WaystoneManager {
     }
     public static void deleteSavedWaystone(Waystone waystone){
         if(waystoneFile == null || waystone == null || waystone.getName() == null){
-            Main.plugin.getLogger().severe(PlaceholderSetter.setPlaceholder(Main.config.getString(Main.config.getString("message.delete-error")), null, waystone));
+            Main.plugin.getLogger().severe(
+                    PlaceholderSetter.setPlaceholder(Main.config.getString("message.delete-error"), null, waystone)
+            );
             return;
         }
         String base = "waystone." + waystone.getName();
@@ -185,84 +188,87 @@ public class WaystoneManager {
         int delay = Main.config.getInt("options.teleport.delay", 0);
         boolean countdown = Main.config.getBoolean("options.teleport.countdown", false);
 
-        // Instant teleport
+        // Instant teleport (run on player scheduler for Folia safety)
         if (delay <= 0) {
-            player.teleport(base);
-            player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_success"), player, waystone));
-            playSound(player, Main.config.getString("sound.teleport_success"));
+            RegionSchedulers.runOnEntity(player, () -> {
+                if (!player.isOnline()) return;
+                player.teleportAsync(base);
+                player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_success"), player, waystone));
+                playSound(player, Main.config.getString("sound.teleport_success"));
+            });
             return;
         }
 
-        // Start message + sound
-        player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_start"), player, waystone));
-        playSound(player, Main.config.getString("sound.teleport_start"));
+        // Start message + sound (on player scheduler)
+        RegionSchedulers.runOnEntity(player, () -> {
+            if (!player.isOnline()) return;
+            player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_start"), player, waystone));
+            playSound(player, Main.config.getString("sound.teleport_start"));
+        });
 
-        Location startLoc = player.getLocation().clone();
+        // Capture start location from the player's region thread
+        RegionSchedulers.runOnEntity(player, () -> {
+            if (!player.isOnline()) return;
 
-        new BukkitRunnable() {
-            int secondsLeft = delay;
+            Location startLoc = player.getLocation().clone();
+            final int[] secondsLeft = { delay };
 
-            @Override
-            public void run() {
-                if (!player.isOnline()) {
-                    cancel();
-                    return;
-                }
+            Runnable tick = new Runnable() {
+                @Override
+                public void run() {
+                    if (!player.isOnline()) return;
 
-                Location current = player.getLocation();
+                    Location current = player.getLocation();
 
-                // Cancel if moved
-                if (current.getBlockX() != startLoc.getBlockX()
-                        || current.getBlockY() != startLoc.getBlockY()
-                        || current.getBlockZ() != startLoc.getBlockZ()) {
+                    // Cancel if moved
+                    if (current.getBlockX() != startLoc.getBlockX()
+                            || current.getBlockY() != startLoc.getBlockY()
+                            || current.getBlockZ() != startLoc.getBlockZ()) {
 
-                    player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_cancelled"), player, waystone));
-                    playSound(player, Main.config.getString("sound.teleport_cancelled"));
-                    cancel();
-                    return;
-                }
-
-                // Teleport
-                if (secondsLeft <= 0) {
-                    player.teleport(base);
-                    player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_success"), player, waystone));
-                    playSound(player, Main.config.getString("sound.teleport_success"));
-                    cancel();
-                    return;
-                }
-
-                // Countdown tick
-                if (countdown) {
-                    String msg = Main.config.getString("message.teleport_countdown");
-                    if (msg != null) {
-                        msg = msg.replace("%countdown_left%", String.valueOf(secondsLeft));
-                        player.sendMessage(PlaceholderSetter.setPlaceholder(msg, player, waystone));
+                        player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_cancelled"), player, waystone));
+                        playSound(player, Main.config.getString("sound.teleport_cancelled"));
+                        return;
                     }
-                }
 
-                playSound(player, Main.config.getString("sound.teleport_tick"));
-                secondsLeft--;
-            }
-        }.runTaskTimer(Main.plugin, 0L, 20L);
+                    // Teleport
+                    if (secondsLeft[0] <= 0) {
+                        player.teleportAsync(base);
+                        player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_success"), player, waystone));
+                        playSound(player, Main.config.getString("sound.teleport_success"));
+                        return;
+                    }
+
+                    // Countdown tick
+                    if (countdown) {
+                        String msg = Main.config.getString("message.teleport_countdown");
+                        if (msg != null) {
+                            msg = msg.replace("%countdown_left%", String.valueOf(secondsLeft[0]));
+                            player.sendMessage(PlaceholderSetter.setPlaceholder(msg, player, waystone));
+                        }
+                    }
+
+                    playSound(player, Main.config.getString("sound.teleport_tick"));
+                    secondsLeft[0]--;
+
+                    RegionSchedulers.runOnEntityDelayed(player, this, 20L);
+                }
+            };
+
+            tick.run();
+        });
     }
 
 
+    public static void refreshWaystone() {
+        for (Waystone waystone : getAllWaystone()) {
+            Location loc = waystone.getStatueLocation();
+            if (loc == null || loc.getWorld() == null) continue;
 
-
-    public static void refreshWaystone(){
-        for (World world : Bukkit.getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (entity.getPersistentDataContainer().has(
-                        NamespaceKey.getNamespacedKey("WAYSTONE_ENTITY"),
-                        PersistentDataType.STRING
-                )) {
-                    entity.remove();
-                }
-            }
-        }
-
-        for(Waystone waystone : getAllWaystone()){
-            waystone.spawn();
+            miguel.nu.wayStone.utils.RegionSchedulers.runOnRegion(loc, () -> {
+                waystone.despawn();
+                waystone.spawn();
+            });
         }
     }
+
 }
