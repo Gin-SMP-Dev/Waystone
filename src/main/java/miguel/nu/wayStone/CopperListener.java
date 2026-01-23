@@ -34,7 +34,6 @@ public class CopperListener implements Listener {
         }
     }
 
-    // 1) Prevent putting copper helmet/boots on armor stands
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         ArmorStand armorStand = event.getRightClicked();
@@ -43,30 +42,18 @@ public class CopperListener implements Listener {
         ItemStack armorStandItem = event.getArmorStandItem();
         EquipmentSlot slot = event.getSlot();
 
-        // If the player is trying to put copper armor on the armor stand
         if (isCopperArmor(playerItem)) {
-            // Only care about helmet/boots slots (just in case)
             if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.FEET) {
                 event.setCancelled(true);
-                return;
             }
         }
 
-        // If the armor stand already has copper armor and player is trying to interact with it
-        if (isCopperArmor(armorStandItem)) {
-            // Optional: allow taking it off or also block that
-            // Here we allow taking it off, but not putting it on.
-            // If you want to prevent interaction with copper entirely, uncomment below:
-            // event.setCancelled(true);
-        }
     }
 
-    // 2) Prevent mobs from picking up copper helmet/boots
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
         Entity entity = event.getEntity();
 
-        // Only care about non-player mobs
         if (entity instanceof Player) {
             return;
         }
@@ -77,7 +64,6 @@ public class CopperListener implements Listener {
         }
     }
 
-    // 3) Prevent mobs from spawning with copper helmet/boots
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         LivingEntity entity = event.getEntity();

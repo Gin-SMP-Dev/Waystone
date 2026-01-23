@@ -36,7 +36,6 @@ public class Waystone {
     Material placeholder;
 
     public void spawn() {
-        // ----------------------- STATUE (JAVA ItemDisplay) ----------------------
         ItemDisplay itemDisplay = (ItemDisplay) statueLocation.getWorld().spawnEntity(
                 statueLocation,
                 EntityType.ITEM_DISPLAY
@@ -67,7 +66,6 @@ public class Waystone {
         ));
         this.itemDisplay = itemDisplay.getUniqueId();
 
-        // ----------------------- HITBOX (JAVA Interaction) ----------------------
         List<Double> interactionOffset = Main.config.getDoubleList("options.hitbox.offset");
         Location interactionLocation = statueLocation.clone().add(
                 interactionOffset.get(0),
@@ -91,7 +89,6 @@ public class Waystone {
         );
         this.hitbox = interaction.getUniqueId();
 
-        // ----------------------- PEDESTAL (JAVA ItemDisplay) ----------------------
         ItemDisplay pedestal = (ItemDisplay) statueLocation.getWorld().spawnEntity(
                 statueLocation,
                 EntityType.ITEM_DISPLAY
@@ -122,11 +119,6 @@ public class Waystone {
         ));
         this.pedestal = pedestal.getUniqueId();
 
-// ========================================================================
-// ======================= BEDROCK FALLBACK ENTITIES ======================
-// ========================================================================
-
-// ----------------------- STATUE (Bedrock ArmorStand) ----------------------
         ArmorStand bedrockStatue = (ArmorStand) statueLocation.getWorld().spawnEntity(
                 statueLocation.clone().add(
                         statueOffset.get(0),
@@ -145,7 +137,6 @@ public class Waystone {
 
         this.bedrockStatue = bedrockStatue.getUniqueId();
 
-// ----------------------- PEDESTAL (Bedrock ArmorStand) ----------------------
         ArmorStand bedrockPedestal = (ArmorStand) statueLocation.getWorld().spawnEntity(
                 statueLocation.clone().add(
                         pedestalOffset.get(0),
@@ -160,12 +151,10 @@ public class Waystone {
         bedrockPedestal.setSmall(false);
         bedrockPedestal.setArms(false);
 
-// Same here: just STRUCTURE_BLOCK
         bedrockPedestal.getEquipment().setHelmet(new ItemStack(Material.COPPER_HELMET));
 
         this.bedrockPedestal = bedrockPedestal.getUniqueId();
 
-// ----------------------- HITBOX (Bedrock ArmorStand) ----------------------
         ArmorStand bedrockHitbox = (ArmorStand) statueLocation.getWorld().spawnEntity(
                 interactionLocation,
                 EntityType.ARMOR_STAND
@@ -191,7 +180,6 @@ public class Waystone {
         Utils.tagWaystoneEntity(bedrockPedestal, "WAYSTONE_ENTITY");
         Utils.tagWaystoneEntity(bedrockStatue, "WAYSTONE_ENTITY");
 
-        // ----------------------- PER-PLAYER VISIBILITY ----------------------
         updateVisibilityForAllPlayers();
     }
 
@@ -223,38 +211,48 @@ public class Waystone {
     }
 
     public void updateVisibilityForPlayer(Player player) {
-        boolean isBedrock = BedrockUtil.isBedrockPlayer(player.getUniqueId());
+        final boolean isBedrock = BedrockUtil.isBedrockPlayer(player.getUniqueId());
 
-        Entity javaStatue = itemDisplay != null ? Bukkit.getEntity(itemDisplay) : null;
-        Entity javaPedestal = pedestal != null ? Bukkit.getEntity(pedestal) : null;
-        Entity javaHitbox = hitbox != null ? Bukkit.getEntity(hitbox) : null;
+        final Entity javaStatue = itemDisplay != null ? Bukkit.getEntity(itemDisplay) : null;
+        final Entity javaPedestal = pedestal != null ? Bukkit.getEntity(pedestal) : null;
+        final Entity javaHitbox = hitbox != null ? Bukkit.getEntity(hitbox) : null;
 
-        Entity bedrockStatueEntity = bedrockStatue != null ? Bukkit.getEntity(bedrockStatue) : null;
-        Entity bedrockPedestalEntity = bedrockPedestal != null ? Bukkit.getEntity(bedrockPedestal) : null;
-        Entity bedrockHitboxEntity = bedrockHitbox != null ? Bukkit.getEntity(bedrockHitbox) : null;
+        final Entity bedrockStatueEntity = bedrockStatue != null ? Bukkit.getEntity(bedrockStatue) : null;
+        final Entity bedrockPedestalEntity = bedrockPedestal != null ? Bukkit.getEntity(bedrockPedestal) : null;
+        final Entity bedrockHitboxEntity = bedrockHitbox != null ? Bukkit.getEntity(bedrockHitbox) : null;
+
+        java.util.function.BiConsumer<Entity, Boolean> setVisible = (entity, visible) -> {
+            if (entity == null) return;
+            entity.getScheduler().run(Main.plugin, task -> {
+                if (!player.isOnline() || !entity.isValid()) return;
+
+                if (visible) {
+                    player.showEntity(Main.plugin, entity);
+                } else {
+                    player.hideEntity(Main.plugin, entity);
+                }
+            }, null);
+        };
 
         if (isBedrock) {
-            Main.plugin.getLogger().severe("BEDROCK PLAYER");
-            // Bedrock: show armor stands, hide display entities
-            if (javaStatue != null) player.hideEntity(Main.plugin, javaStatue);
-            if (javaPedestal != null) player.hideEntity(Main.plugin, javaPedestal);
-            //if (javaHitbox != null) player.hideEntity(Main.plugin, javaHitbox);
+            setVisible.accept(javaStatue, false);
+            setVisible.accept(javaPedestal, false);
+            // setVisible.accept(javaHitbox, false);
 
-            if (bedrockStatueEntity != null) player.showEntity(Main.plugin, bedrockStatueEntity);
-            if (bedrockPedestalEntity != null) player.showEntity(Main.plugin, bedrockPedestalEntity);
-            if (bedrockHitboxEntity != null) player.showEntity(Main.plugin, bedrockHitboxEntity);
+            setVisible.accept(bedrockStatueEntity, true);
+            setVisible.accept(bedrockPedestalEntity, true);
+            setVisible.accept(bedrockHitboxEntity, true);
         } else {
-            // Java: show display entities, hide armor stands
-            if (javaStatue != null) player.showEntity(Main.plugin, javaStatue);
-            if (javaPedestal != null) player.showEntity(Main.plugin, javaPedestal);
-            if (javaHitbox != null) player.showEntity(Main.plugin, javaHitbox);
+            setVisible.accept(javaStatue, true);
+            setVisible.accept(javaPedestal, true);
+            setVisible.accept(javaHitbox, true);
 
-            if (bedrockStatueEntity != null) player.hideEntity(Main.plugin, bedrockStatueEntity);
-            if (bedrockPedestalEntity != null) player.hideEntity(Main.plugin, bedrockPedestalEntity);
-            if (bedrockHitboxEntity != null) player.hideEntity(Main.plugin, bedrockHitboxEntity);
-
+            setVisible.accept(bedrockStatueEntity, false);
+            setVisible.accept(bedrockPedestalEntity, false);
+            setVisible.accept(bedrockHitboxEntity, false);
         }
     }
+
 
     public String getName() {
         return name;

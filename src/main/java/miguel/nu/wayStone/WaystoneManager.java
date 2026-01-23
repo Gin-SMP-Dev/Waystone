@@ -8,11 +8,6 @@ import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -170,7 +165,6 @@ public class WaystoneManager {
     public static void teleportToWaystone(Player player, Waystone waystone) {
         Location base = waystone.getStatueLocation().clone();
 
-        // ----- OFFSET -----
         List<Double> offset = Main.config.getDoubleList("options.teleport.offset");
         double forward  = offset.size() > 0 ? offset.get(0) : 0.0;
         double up       = offset.size() > 1 ? offset.get(1) : 0.0;
@@ -188,7 +182,6 @@ public class WaystoneManager {
         int delay = Main.config.getInt("options.teleport.delay", 0);
         boolean countdown = Main.config.getBoolean("options.teleport.countdown", false);
 
-        // Instant teleport (run on player scheduler for Folia safety)
         if (delay <= 0) {
             RegionSchedulers.runOnEntity(player, () -> {
                 if (!player.isOnline()) return;
@@ -199,14 +192,12 @@ public class WaystoneManager {
             return;
         }
 
-        // Start message + sound (on player scheduler)
         RegionSchedulers.runOnEntity(player, () -> {
             if (!player.isOnline()) return;
             player.sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.teleport_start"), player, waystone));
             playSound(player, Main.config.getString("sound.teleport_start"));
         });
 
-        // Capture start location from the player's region thread
         RegionSchedulers.runOnEntity(player, () -> {
             if (!player.isOnline()) return;
 
