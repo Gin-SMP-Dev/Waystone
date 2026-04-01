@@ -42,6 +42,8 @@ public class GuiListener implements Listener {
                         }
                         if (waystone.isBanned(player.getUniqueId().toString())){
                             player.sendMessage(Main.config.getString("message.waystone-banned"));
+                            playSound(player, Main.config.getString("sound.teleport_cancelled"));
+                            event.getInventory().close();
                             return;
                         }
                         WaystoneManager.teleportToWaystone((Player) event.getWhoClicked(), waystone);

@@ -22,6 +22,13 @@ public class WaystoneAPI {
         }
         waystone.addBannedPlayer(uuid.toString());
     }
+    public static void unbanPlayer(UUID uuid, String waystoneName){
+        Waystone waystone = WaystoneManager.getWaystone(waystoneName);
+        if (waystone == null){
+            return;
+        }
+        waystone.removeBannedPlayer(uuid.toString());
+    }
     public static List<UUID> getWaystoneBanList(String waystoneName){
         Waystone waystone = WaystoneManager.getWaystone(waystoneName);
         if (waystone == null){

@@ -2,6 +2,7 @@ package miguel.nu.wayStone.Classes;
 
 import miguel.nu.wayStone.CustomModelData;
 import miguel.nu.wayStone.Main;
+import miguel.nu.wayStone.WaystoneManager;
 import miguel.nu.wayStone.utils.BedrockUtil;
 import miguel.nu.wayStone.utils.NamespaceKey;
 import miguel.nu.wayStone.utils.Utils;
@@ -312,6 +313,7 @@ public class Waystone {
 
     public void setBannedPlayers(List<String> bannedPlayers) {
         this.bannedPlayers = bannedPlayers;
+        WaystoneManager.saveWaystone(this);
     }
 
     public boolean isBanned(String player) {
@@ -320,6 +322,7 @@ public class Waystone {
 
     public void addBannedPlayer(String playerUUID) {
         bannedPlayers.add(playerUUID);
+        WaystoneManager.saveWaystone(this);
     }
 
     /**
@@ -330,5 +333,6 @@ public class Waystone {
      */
     public void removeBannedPlayer(String playerUUID){
         bannedPlayers.remove(playerUUID);
+        WaystoneManager.saveWaystone(this);
     }
 }
