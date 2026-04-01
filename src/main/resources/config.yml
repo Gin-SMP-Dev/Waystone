@@ -13,6 +13,7 @@ message:
   waystone-name-conflict: "§cA waystone already exist!"
   waystone-deleted: "§aWaystone deleted!"
   waystone-not-found: "§cCould not find a waystone with that name!"
+  waystone_banned: "§cYou're banned from using this waystone!"
 
   waystone_teleported: "§aYou teleported to %waystone_name%!"
 

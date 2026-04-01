@@ -40,7 +40,10 @@ public class GuiListener implements Listener {
                             Main.plugin.getLogger().severe(Main.config.getString("message.waystone-not-found"));
                             return;
                         }
-
+                        if (waystone.isBanned(player.getUniqueId().toString())){
+                            player.sendMessage(Main.config.getString("message.waystone-banned"));
+                            return;
+                        }
                         WaystoneManager.teleportToWaystone((Player) event.getWhoClicked(), waystone);
                         event.getInventory().close();
 

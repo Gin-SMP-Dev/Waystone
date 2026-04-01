@@ -11,6 +11,7 @@ import miguel.nu.wayStone.WaystoneManager;
 import miguel.nu.wayStone.utils.PlaceholderSetter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WaystoneCommand implements BasicCommand {
+    // Commandsne er umenneskeligt goofy lavet....
     @Override
     public void execute(CommandSourceStack source, String[] args) {
         if (args.length < 1) {
@@ -67,6 +69,24 @@ public class WaystoneCommand implements BasicCommand {
             }
 
         }
+        else if (args[0].equals("dummy")) {
+            if(args.length == 1){
+                Waystone waystone = new Waystone();
+                waystone.setName("dummy");
+                Location location = source.getLocation().clone();
+                location.setPitch(0);
+                location.setYaw(Math.round((double) source.getLocation().getYaw() / 90) * 90);
+                waystone.setStatueLocation(location);
+                waystone.setPlaceholder(Material.BARRIER);
+
+                waystone.spawn();
+                return;
+            } else{
+                source.getSender().sendMessage(PlaceholderSetter.setPlaceholder(Main.config.getString("message.many-arg"), (Player) source.getSender(), null));
+                return;
+            }
+
+        }
         else if (args[0].equals("delete")) {
             if(args.length == 2){
                 if(WaystoneManager.deleteWaystone(args[1])){
@@ -96,11 +116,11 @@ public class WaystoneCommand implements BasicCommand {
         }
 
         if (args.length == 0) {
-            return List.of("reload", "spawn", "delete", "teleport");
+            return List.of("reload", "spawn", "delete", "teleport", "dummy");
         }
 
         if (args.length == 1) {
-            List<String> suggestions = List.of("reload", "spawn", "delete", "teleport");
+            List<String> suggestions = List.of("reload", "spawn", "delete", "teleport", "dummy");
             String input = args[0].toLowerCase();
 
             return suggestions.stream()

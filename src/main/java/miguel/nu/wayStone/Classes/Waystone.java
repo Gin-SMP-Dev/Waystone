@@ -17,6 +17,7 @@ import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class Waystone {
     private UUID bedrockPedestal;
     private UUID bedrockHitbox;
 
+    private List<String> bannedPlayers = new ArrayList<>();
     String name;
     Location statueLocation;
     Material placeholder;
@@ -222,7 +224,9 @@ public class Waystone {
         final Entity bedrockHitboxEntity = bedrockHitbox != null ? Bukkit.getEntity(bedrockHitbox) : null;
 
         java.util.function.BiConsumer<Entity, Boolean> setVisible = (entity, visible) -> {
-            if (entity == null) return;
+            if (entity == null) {
+                return;
+            }
             entity.getScheduler().run(Main.plugin, task -> {
                 if (!player.isOnline() || !entity.isValid()) return;
 
@@ -300,5 +304,31 @@ public class Waystone {
 
     public void setPedestal(UUID pedestal) {
         this.pedestal = pedestal;
+    }
+
+    public List<String> getBannedPlayers() {
+        return bannedPlayers;
+    }
+
+    public void setBannedPlayers(List<String> bannedPlayers) {
+        this.bannedPlayers = bannedPlayers;
+    }
+
+    public boolean isBanned(String player) {
+        return bannedPlayers.contains(player);
+    }
+
+    public void addBannedPlayer(String playerUUID) {
+        bannedPlayers.add(playerUUID);
+    }
+
+    /**
+     *
+     * Removes a player uuid from the bannedPlayers list, will fail silently if the given uuid isn't present.
+     *
+     * @param playerUUID
+     */
+    public void removeBannedPlayer(String playerUUID){
+        bannedPlayers.remove(playerUUID);
     }
 }

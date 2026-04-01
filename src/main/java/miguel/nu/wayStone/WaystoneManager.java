@@ -96,6 +96,7 @@ public class WaystoneManager {
         waystoneFile.set(base + ".statue.z", waystone.getStatueLocation().getZ());
         waystoneFile.set(base + ".statue.yaw", waystone.getStatueLocation().getYaw());
         waystoneFile.set(base + ".statue.pitch", waystone.getStatueLocation().getPitch());
+        waystoneFile.set(base + ".banned_players", waystone.getBannedPlayers());
         saveFile();
     }
     public static void deleteSavedWaystone(Waystone waystone){
@@ -146,6 +147,7 @@ public class WaystoneManager {
             waystone.setItemDisplay(UUID.fromString(waystoneFile.getString(base + ".uuid.item-display")));
             waystone.setHitbox(UUID.fromString(waystoneFile.getString(base + ".uuid.hitbox")));
             waystone.setPedestal(UUID.fromString(waystoneFile.getString(base + ".uuid.pedestal")));
+            waystone.setBannedPlayers(waystoneFile.getStringList(base + ".banned_players"));
 
             loadedWaystones.add(waystone);
         }
